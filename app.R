@@ -1,58 +1,114 @@
 library(shiny)
+library(readr)
+library(shinyWidgets)
+library(lubridate)
+
+# load data in
+nyt_books <- read_csv(
+  "data/nyt_bestsellers_2010_2019 - bestsellers.csv"
+)
+
+# date choices
+#date choices
+# choices <- seq.Date(date("2021-01-01", today() - 1, by = 1))
+#                     choices <- choices[!wday(choices) %in% c(1, 7)] #removes weekends
+#                     default <- seq.Date(today() - 182, today() - 180, by = 1) 
+#                     default <- default[!wday(default) %in% c(1, 7)]
+#                     default <- max(default) #most recent weekday
+
 
 # Define UI for app that draws a histogram ----
 ui <- fluidPage(
   
-  # App title ----
-  titlePanel("Hello Shiny!"),
+  # ui stuff goes in here
   
-  # Sidebar layout with input and output definitions ----
+  # displays the title of the app
+  titlePanel(
+    "Exploring NYT Bestsellers, 2010-2019",
+  ),
+  
+  # Sidebar Layout for user input and dateframe display
   sidebarLayout(
     
-    # Sidebar panel for inputs ----
     sidebarPanel(
       
-      # Input: Slider for the number of bins ----
-      sliderInput(inputId = "bins",
-                  label = "Number of bins:",
-                  min = 1,
-                  max = 50,
-                  value = 30)
+      # enables the user to input a date range
+      # reference for later:  https://stackoverflow.com/questions/66977704/restrict-sliderinput-in-r-shiny-date-range-to-weekdays
+      dateRangeInput(
+        inputId = "dates",
+        label = "Date Range:",
+        start = "2010-01-03",
+        end = "2019-12-29",
+        min = "2010-01-03",
+        max = "2019-12-29",
+        startview = "year"
+      ),
+      
+      # enables the user to input how many books they want to display
+      sliderInput(
+        inputId = "number_of_books",
+        label = "Number of Books to Display:",
+        min = 1, 
+        max = 5,
+        value = 5,
+        step = 1
+      ),
+      
+      # enables the user to select how many genres to display
+      checkboxGroupInput(
+        inputId = "genres",
+        label = "Genres:",
+        choices = c(
+          "Chapter Books",
+          "Hardcover Advice",
+          "Hardcover Fiction",
+          "Hardcover Graphic Books",
+          "Hardcover Nonfiction",
+          "Manga",
+          "Mass Market Paperback",
+          "Paperback Advice",
+          "Paperback Books",
+          "Paperback Graphic Books",
+          "Paperback Nonfiction",
+          "Picture Books",
+          "Series Books",
+          "Trade Fiction Paperback"
+        )
+      ),
+      
+      # dataframe stuff
+      DT::dataTableOutput(
+        outputId = "nyt_bestsellers_dt"
+      ),
+      
+      # enables the user to download the data
+      downloadButton(
+        outputId = "nyt_bestsellers",
+        label = "NYT Bestsellers Data"
+      )
       
     ),
     
-    # Main panel for displaying outputs ----
+    # this is the part that actually holds the plotted data
     mainPanel(
       
-      # Output: Histogram ----
-      plotOutput(outputId = "distPlot")
+      # TBD
+      plotOutput(outputId = "something"),
       
+      plotOutput(outputId = "something else"),
+      
+      plotOutput(outputId = "something else else")
+        
     )
   )
+  
 )
 
-# Define server logic required to draw a histogram ----
 server <- function(input, output) {
   
-  # Histogram of the Old Faithful Geyser Data ----
-  # with requested number of bins
-  # This expression that generates a histogram is wrapped in a call
-  # to renderPlot to indicate that:
-  #
-  # 1. It is "reactive" and therefore should be automatically
-  #    re-executed when inputs (input$bins) change
-  # 2. Its output type is a plot
-  output$distPlot <- renderPlot({
-    
-    x    <- faithful$waiting
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    
-    hist(x, breaks = bins, col = "#007bc2", border = "white",
-         xlab = "Waiting time to next eruption (in mins)",
-         main = "Histogram of waiting times")
-    
-  })
+  # server logic goes in here
   
 }
 
+# runs the app
 shinyApp(ui = ui, server = server)
