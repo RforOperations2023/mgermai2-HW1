@@ -95,17 +95,7 @@ ui <- fluidPage(
         inline = TRUE
       ),
       
-      # selectInput(
-      #   inputId = "ridership",
-      #   label = "Ridership",
-      #   choices = c(
-      #     "avg_riders",
-      #     "day_count"
-      #   ),
-      #   selected = "avg_riders"
-      # ),
-      
-      # # dataframe stuff
+      # dataframe stuff
       DT::dataTableOutput(
         outputId = "topRoutesDT",
       ),
@@ -124,7 +114,8 @@ ui <- fluidPage(
       # okay, so what do I want to display?
       
       # 1)  histogram showing the ridership of the (up to) top 10 most ridden routes, user can select based on the date range
-      plotOutput(outputId = "routeStats")
+      # 2)  line graph? 
+      plotOutput(outputId = "mostPopularRoutes")
         
     )
   )
@@ -138,43 +129,19 @@ server <- function(input, output) {
   user_filtered <- reactive({
       # Referenced this to blog for how to use dplyr to filter dataframe based on date range:
       # https://www.r-bloggers.com/2022/06/what-is-the-best-way-to-filter-by-date-in-r/
-      TRANSIT_DATA %>% filter(between(month_start, input$dates[1], input$dates[2])) %>%
-        filter(avg_riders <= input$top)
-  })
-  # Filter on individual player stats
-  player_stats <- reactive({
-    OWGR_Historical %>% filter(Player == toupper(input$player))
-  })
-  
-  output$routeStats <- renderPlot({
-    ggplot(
-      data=user_filtered(),
-      aes(
-        x = input$dates, 
-        y = input$statType, 
-        # fill = x,
-        # color = input$statType
-      )
-    ) + geom_bar(stat = "identity")
-    
-    # + theme(plot.title = element_text(hjust = 0.5)) 
-    # + ylab("Average Points")
-    
+      TRANSIT_DATA %>% filter(between(month_start, input$dates[1], input$dates[2])) %>% filter(avg_riders <= input$top)
   })
   
   
-  
-  # output$scatterplot <- renderPlot({
-  #   
-  #   ggplot(
-  #     data = TRANSIT_DATA,
-  #     aes(
-  #       x = input$dates,
-  #       y = input$ridership
-  #     )
-  #   )
-  #   
-  # })
+  # Render plot for Average Points for top x players
+  output$mostPopularRoutes <- renderPlot({
+    ggplot(data = user_filtered(), aes(x = month_start, y = avg_riders, color=route)) +
+      geom_line() + geom_point() +
+      ggtitle(paste("Average Ridership for Top", input$top, "PRT Routes", sep = " ")) +
+      # Referenced for how to center plot title
+      # https://stackoverflow.com/questions/40675778/center-plot-title-in-ggplot2
+      theme(plot.title = element_text(hjust = 0.5))
+  })
   
 }
 
