@@ -4,6 +4,7 @@ library(shinyWidgets)
 library(lubridate)
 library(ggplot2)
 library(shinythemes)
+library(dplyr)
 
 
 # load data in
@@ -142,6 +143,10 @@ server <- function(input, output) {
   })
   
 }
+
+
+TRANSIT_DATA %>% head()
+
 
 # runs the app
 shinyApp(ui = ui, server = server)

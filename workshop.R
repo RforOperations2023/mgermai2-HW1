@@ -1,0 +1,97 @@
+# IDEAS:
+
+# MAKE A UI
+
+# MAKE a WORKSHOP
+# -- # INPUT
+# -- # DATA
+# -- # OUTPUTS
+
+# MAKE MY SERVER
+library(tidyverse)
+library(dplyr)
+############ WORKSHOPPING #######################
+# FAKE INPUTS
+input = list(
+  # Date thresholds
+  dates = c("2017-01-01", "2022-11-01"),
+  # Max ridership threshold
+  top = 50,
+  # Day of the week
+  day = c("WEEKDAY", "SAT.", "SUN." ) 
+)
+
+output = list()
+# output$stuff = "Tim!" # for example
+
+# readr uses read_csv() - it formats the data as a tibble(), which lets you see format
+d <- read_csv("data/prt-transit.csv") %>%
+  mutate(month_start = as.Date(month_start))
+
+
+# TIDYVERSE = post-2016 version of quality coding in R; Hadley Wickham
+# suite of packages called the tidyverse
+# "tidyverse" (dplyr, readr, purrr, tidyr)
+# install.packages("tidyverse")
+# because when I say, the 'tidyverse' way to do something, I mean, it uses one of these packages.
+
+d$day_type %>% unique() # base-R style
+d %>% select(day_type) %>% distinct() # tidyverse-style
+
+# Pipe or Pipeline %>%
+
+# THE MEANING OF A ROW IS A ROUTE-MONTH-DAYTYPE
+dhat3 = d %>%
+  filter(month_start >= input$dates[1], month_start < input$dates[2] ) %>%
+  filter(day_type %in% input$day) %>%
+  mutate(id = paste(route, day_type, month_start, sep = "-")) %>%
+  mutate(total_monthly_riders = paste(round(avg_riders * day_count))) %>%
+  slice_max(avg_riders, n = input$top) %>%
+  select(month_start, total_monthly_riders, id, route, day_type)
+  
+  
+  filter(avg_riders <= input$top) %>%
+  
+  
+  select(month_start, avg_riders, id, route, day_type)
+  # mutate(id = paste(route, day_type, sep = "-")) %>%
+  # group_by(id) %>%
+  # filter(month_start >= input$dates[1], month_start < input$dates[2] ) %>%
+  # filter(day_type %in% input$day)
+  
+  # select(month_start, avg_riders, id, route, day_type) %>%
+  
+  # filter(avg_riders <= input$top) %>%
+#   slice_max(avg_riders, n = input$top) %>%
+#   
+#   # 
+
+
+
+##### 
+
+
+
+# MAKE YOUR SUBSET
+# THE MEANING OF A ROW IS A ROUTE-MONTH-DAYTYPE
+# dhat = d %>%
+#   filter(month_start >= input$dates[1], month_start < input$dates[2] ) %>%
+#   filter(avg_riders <= input$top) %>%
+#   filter(day_type %in% input$day) %>%
+#   mutate(id = paste(route, day_type, sep = "-")) %>%
+#   select(month_start, avg_riders, id, route, day_type)
+
+
+# dhat %>%
+#   ggplot(mapping = aes(x = month_start, y = avg_riders, group = id, color = route)) +
+#   geom_line() + geom_point() +
+#   guides(color = "none") +
+#   ggtitle(paste("Average Ridership for Top", input$top, "PRT Routes", sep = " ")) +
+#   theme(plot.title = element_text(hjust = 0.5))
+
+
+
+
+
+
+
