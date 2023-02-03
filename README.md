@@ -1,5 +1,9 @@
 # Homework #1 -- Building a Basic Shiny App
 
+## Live Link
+
+You can view the live app [here](https://mgermaine93.shinyapps.io/mgermai2-HW1/).
+
 ## General Description
 
 This is my first of three homework assignments for CMU's Spring 2023 "R for Operations Management" course.
