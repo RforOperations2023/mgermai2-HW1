@@ -27,7 +27,7 @@ ui <- fluidPage(
   
   # sets the theme/coloring of the app
   theme = shinytheme("cerulean"),
-  
+
   # displays the title of the app
   titlePanel(
     "Pittsburgh Regional Transit Ridership, 2017-2022",
@@ -189,15 +189,13 @@ server <- function(input, output, session) {
       # filter out by the user-input day type
       filter(day_type %in% input$day) %>%
       # filter out by the user-input mode of transportation
-      filter(mode %in% input$mode) %>%
+      filter(mode %in% input$modes) %>%
       # create a new field, id, to serve as what's displayed to the user
       mutate(id = paste(route, day_type, month_start, sep = "-")) %>%
       # create a new field, total_monthly_riders, to serve as the value plotted against the y-axis
       mutate(total_monthly_riders = paste(round(avg_riders * day_count))) %>%
-      # sort the values by ridership
-      arrange(desc(avg_riders)) %>%
       # grab the top "X" values, as input by the user
-      slice(0,input$top) %>%
+      slice_max(avg_riders, n = input$top) %>%
       # select the actual data
       select(month_start, mode, total_monthly_riders, id, route, day_type)
     print("---dhat2"); return(result)
@@ -221,22 +219,22 @@ server <- function(input, output, session) {
     print("---dhat3"); return(result)
   })
   
-  
+
   ### ACTUALLY PLOT THE FIGURES USING THE SUBSETS DEFINED ABOVE ###
   
   # first plot
   output$monthly_ridership <- renderPlot({
-    
+  
     dhat() %>%
       ggplot(mapping = aes(
         x = month_start, 
         y = avg_riders, 
-        # group = id, 
+        group = id, 
+        color = id, 
         fill = id
       )) +
       xlab("Start of the Month") +
       ylab("Average Number of Riders for the Month") +
-      labs(fill="Route Full Name:") +
       geom_line(alpha = 0.5) + 
       geom_point(alpha = 0.5) +
       ggtitle(paste(str_interp("Average Monthly Ridership for ${length(input$route)} Selected PRT Route${add_s(length(input$route))} Over Time"))) +
@@ -251,10 +249,10 @@ server <- function(input, output, session) {
         x = id,
         y = total_monthly_riders, 
         fill = id,
+        color = id
       )) +
       xlab("Route Name and Day") +
       ylab("Average Number of Riders for the Month") +
-      labs(fill="Route Full Name:") +
       geom_bar(
         alpha = 0.5, 
         stat = "identity"
@@ -274,7 +272,6 @@ server <- function(input, output, session) {
       )) +
       xlab("Route Name and Day") +
       ylab("Number of Riders in A Single Day") +
-      labs(fill="Route Full Name:") +
       geom_bar(alpha = 0.5, stat = "identity") +
       ggtitle(paste(str_interp("Top ${input$top} All-Time Most Popular Route${add_s(input$top)} Based on Single-Day Ridership"))) +
       theme(plot.title = element_text(hjust = 0.5))

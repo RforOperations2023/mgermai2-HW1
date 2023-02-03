@@ -229,12 +229,11 @@ server <- function(input, output, session) {
       ggplot(mapping = aes(
         x = month_start, 
         y = avg_riders, 
-        group = id, 
-        color = id, 
-        fill = id
+        color = id,
       )) +
       xlab("Start of the Month") +
       ylab("Average Number of Riders for the Month") +
+      labs(color = "Full Name of Route:") +
       geom_line(alpha = 0.5) + 
       geom_point(alpha = 0.5) +
       ggtitle(paste(str_interp("Average Monthly Ridership for ${length(input$route)} Selected PRT Route${add_s(length(input$route))} Over Time"))) +
@@ -249,10 +248,10 @@ server <- function(input, output, session) {
         x = id,
         y = total_monthly_riders, 
         fill = id,
-        color = id
       )) +
       xlab("Route Name and Day") +
       ylab("Average Number of Riders for the Month") +
+      labs(fill="Full Name of Route:") +
       geom_bar(
         alpha = 0.5, 
         stat = "identity"
@@ -272,6 +271,7 @@ server <- function(input, output, session) {
       )) +
       xlab("Route Name and Day") +
       ylab("Number of Riders in A Single Day") +
+      labs(fill="Full Name of Route:") +
       geom_bar(alpha = 0.5, stat = "identity") +
       ggtitle(paste(str_interp("Top ${input$top} All-Time Most Popular Route${add_s(input$top)} Based on Single-Day Ridership"))) +
       theme(plot.title = element_text(hjust = 0.5))

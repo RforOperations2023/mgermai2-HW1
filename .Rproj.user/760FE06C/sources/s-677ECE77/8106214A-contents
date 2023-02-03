@@ -27,6 +27,6 @@ The specific dataset I used is [here](https://data.wprdc.org/dataset/prt-monthly
 There are a few general improvements I would make to this project, given more time and familiarity with R and R Shiny:
 
 * I would use the [scales](https://scales.r-lib.org/) library to create more detailed scales for the plots.  For example, it would be nice to have the x-axis of the first plot include smaller tick marks for the months in-between the years that it does display.
-* I would make the x-axis on all three plots more readable.  Currently, they are all scrunched up.
-* I would order the bars of the two bar plots from most ridership to least ridership.  I would also ensure that the legend ordered appropriately when I implement this functionality.
-* I would fix what I believe is a bug in the sorting of the "Top X Routes" functionality for the bottom two plots.
+* I would make the x-axis on all three plots more readable.  Unfortunately, I was unable to figure out how to do this in a timely manner.
+* I would add a more descriptive title to the legend of the two bar plots.
+* I would order the bars of the two bar plots from most ridership to least ridership.  I would also ensure that the legend ordered appropriately as well when I implement this functionality.
