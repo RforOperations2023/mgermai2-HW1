@@ -20,7 +20,7 @@ Nearly every Shiny application requires you to translate user inputs to allow th
 
 The data source I used is courtesy of the [Western Pennsylvania Regional Data Center](http://www.wprdc.org/).
 
-The specific dataset I used is [here](https://data.wprdc.org/dataset/prt-monthly-average-ridership-by-route/resource/12bb84ed-397e-435c-8d1b-8ce543108698)
+The specific dataset I used is [here](https://data.wprdc.org/dataset/prt-monthly-average-ridership-by-route/resource/12bb84ed-397e-435c-8d1b-8ce543108698).
 
 ## Improvements I Would Make in the Future
 
