@@ -11,6 +11,8 @@
 # Perhaps choose a different theme so that the data table is more easily readable.
 # Add comments.
 # Clean up variable names.
+# Push up to R Shiny Apps.
+# Send shiny apps link and github repo to Geoffrey.
 # BONUS:  try and make data table dynamically incorporate user's input.
 
 library(shiny)
