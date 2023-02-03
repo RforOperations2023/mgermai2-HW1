@@ -9,6 +9,8 @@
 # Clean up legend titles/make them easier to understand
 # Update README
 # Perhaps choose a different theme so that the data table is more easily readable.
+# Add comments.
+# Clean up variable names.
 # BONUS:  try and make data table dynamically incorporate user's input.
 
 library(shiny)
@@ -286,7 +288,7 @@ server <- function(input, output, session) {
   
   
   output$mytable = DT::renderDataTable({
-    d
+    DT::datatable(data = dhat3())
   })
   
   
@@ -295,7 +297,7 @@ server <- function(input, output, session) {
       paste('prt-transit-data-', Sys.Date(), '.csv', sep='')
     },
     content = function(con) {
-      write.csv(d, con)
+      write.csv(dhat3(), con)
     }
   )
   
