@@ -18,7 +18,9 @@ input = list(
   # Max ridership threshold
   top = 50,
   # Day of the week
-  day = c("WEEKDAY", "SAT.", "SUN." ) 
+  day = c("WEEKDAY", "SAT.", "SUN." ) ,
+  # Mode of transit
+  mode = "Incline"
 )
 
 output = list()
@@ -46,8 +48,9 @@ dhat3 = d %>%
   filter(day_type %in% input$day) %>%
   mutate(id = paste(route, day_type, month_start, sep = "-")) %>%
   mutate(total_monthly_riders = paste(round(avg_riders * day_count))) %>%
+  filter(mode %in% input$mode) %>%
   slice_max(avg_riders, n = input$top) %>%
-  select(month_start, total_monthly_riders, id, route, day_type)
+  select(month_start, total_monthly_riders, id, mode, route, day_type)
   
   
   filter(avg_riders <= input$top) %>%
