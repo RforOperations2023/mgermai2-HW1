@@ -1,9 +1,3 @@
-.Rproj.user/
-test.txt
-workshop.R
-.RData
+scrap/
 .Rhistory
-markdownTest.Rmd
-movies.Rdata
-app2.R
-app-2.R
+.RData

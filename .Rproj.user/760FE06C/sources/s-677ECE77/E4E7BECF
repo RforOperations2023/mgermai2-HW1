@@ -3,7 +3,7 @@
     "path": "~/Desktop/r-for-operations-2023/mgermai2-HW1/.gitignore",
     "project_path": ".gitignore",
     "type": "gitignore",
-    "hash": "0",
+    "hash": "2655629651",
     "contents": "",
     "dirty": false,
     "created": 1675448511385.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "0,12",
+        "cursorPosition": "2,6",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1675448699,
+    "lastKnownWriteTime": 1675448821,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1675448699021,
+    "last_content_update": 1675448821866,
     "read_only": false,
     "read_only_alternatives": []
 }
