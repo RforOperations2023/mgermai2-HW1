@@ -1,5 +1,5 @@
 # Things I still want to add:
-# Name/Date, etc.
+# Name/Date, etc. (both to the app itself and to these comments)  -- DONE
 # Clean up axis labels.
 # Clean up plot scales (use scales library?)
 # Edit wording, grammar, etc.
@@ -13,8 +13,15 @@
 # Clean up variable names.
 # Push up to R Shiny Apps.
 # Send shiny apps link and github repo to Geoffrey.
-# BONUS:  try and make data table dynamically incorporate user's input.
+# BONUS:  try and make data table dynamically incorporate user's input. -- DONE
 
+
+# -----------------------------------#
+# Matthew Germaine                   #
+# R Shiny for Operations Management  #
+# HW #1                              #
+# Basic Shiny App                    #
+# -----------------------------------#
 library(shiny)
 library(readr)
 library(shinyWidgets)
@@ -27,19 +34,17 @@ library(DT)
 
 
 # readr uses read_csv() - it formats the data as a tibble(), which lets you see format
+# also removes the "NA" forms of transportation from the data to be interpreted
 d <- read_csv("data/prt-transit.csv") %>%
-  mutate(month_start = as.Date(month_start))
+  mutate(month_start = as.Date(month_start)) %>%
+  filter(mode != "NA")
 
-# Pipe or Pipeline %>%
-
-
-# Define UI for app that draws a histogram ----
+# ui part begins here
 ui <- fluidPage(
   
+  # sets the theme/coloring of the app
   theme = shinytheme("darkly"),
-  
-  # ui stuff goes in here
-  
+
   # displays the title of the app
   titlePanel(
     "Pittsburgh Regional Transit Ridership, 2017-2022",
@@ -47,7 +52,7 @@ ui <- fluidPage(
   
   h5("By Matt Germaine"),
   
-  # sidebar layout for user input and download link
+  # user input part
   sidebarLayout(
     
     sidebarPanel(
@@ -76,20 +81,22 @@ ui <- fluidPage(
         selected = c("WEEKDAY") 
       ),
       
-      # enables the user to view the most popular routes
+      # enables the user to view routes by total monthly ridership
       sliderInput(
         inputId = "ridership",
         label = "Total Monthly Ridership:",
         min = 0,
         max = max(
-          12000
+          12000 # could change later if needed when dataset is updated...
+          # if so, it would look like this:
           # d$avg_riders, # could be a whole number instead of the max
           # na.rm = TRUE
         ),
         value = c(
           0, 
           max(
-            12000
+            12000 # could change later if needed when dataset is updated...
+            # if so, it would look like this:
             # d$avg_riders, # could be a whole number instead of the max
             # na.rm = TRUE
           )
@@ -106,6 +113,7 @@ ui <- fluidPage(
         selectize = TRUE
       ),
       
+      # enables the user to select how many routes ("Top X Routes") they want to view
       numericInput(
         inputId = "top",
         label = "Top X Routes",
@@ -114,18 +122,13 @@ ui <- fluidPage(
         max = 50
       ),
       
+      # enables the user to select routes based on the mode of transportation
       checkboxGroupInput(
         inputId = "modes",
         label = "Mode of Transportation:",
         choices = unique(d$mode),
         selected = "Bus"
       ),
-      
-      # # https://stackoverflow.com/questions/28829682/r-shiny-checkboxgroupinput-select-all-checkboxes-by-click
-      # actionLink(
-      #   inputId = "allModes",
-      #   label = "Select All Modes of Transportation"
-      # ),
       
       br(),
       
@@ -166,62 +169,63 @@ ui <- fluidPage(
 # server logic goes in here
 server <- function(input, output, session) {
   
-  # https://stackoverflow.com/questions/28829682/r-shiny-checkboxgroupinput-select-all-checkboxes-by-click
-  # observe({
-  #   if(input$allModes == 0) return(NULL) 
-  #   else if (input$allModes%%2 == 0)
-  #   {
-  #     updateCheckboxGroupInput(session, "modes","Mode of Transportation:", choices=unique(d$mode))
-  #   }
-  #   else
-  #   {
-  #     updateCheckboxGroupInput(session,"modes","Mode of Transportation:", choices=unique(d$mode),selected=unique(d$mode))
-  #   }
-  # })
-  
   # HELPER FUNCTION TO ADD AN "S" IN THE LINE PLOT TITLE WHEN NEEDED
   add_s <- function(number) {
-    if (length(number) > 1) {
+    if (number > 1) {
+      return("s")
     } else {
       return("")
     }
   }
   
-  # FILTERS ON USER INPUT FOR MONTH_START, AVG_RIDERS, DAY_TYPE, AND ROUTE_FULL_NAME
+  # creates the first subset to be plotted in the first (line) plot
   dhat <- reactive({
-    # MAKE THE SUBSET
-    # THE MEANING OF A ROW IS A ROUTE-MONTH-DAYTYPE
+    # the meaning of a row is route-month-type
     result = d %>%
+      # filter out by the user-input date range
       filter(month_start >= input$dates[1], month_start < input$dates[2] ) %>%
+      # filter out by the user-input ridership
       filter(avg_riders >= input$ridership[1] & avg_riders <= input$ridership[2]) %>%
+      # filter out by the user-input day type
       filter(day_type %in% input$day) %>%
+      # filter out by the user-input route names
       filter(route_full_name %in% input$route) %>%
+      # create a new field, id, to serve as what's displayed to the user
       mutate(id = paste(route, day_type, sep = "-"))%>%
+      # select the data
       select(month_start, avg_riders, id, route, day_type) 
     print("---dhat"); return(result)
   })
   
-  # FILTERS ON USER INPUT FOR MONTH_START, AVG_RIDERS, DAY_TYPE, AND ROUTE_FULL_NAME
+  # creates the second subset to be plotted in the second plot
   dhat2 <- reactive({
-    # MAKE THE SUBSET
-    # THE MEANING OF A ROW IS A ROUTE-MONTH-DAYTYPE
+    # the meaning of a row is route-month-type
     result = d %>%
+      # filter out by the user-input date range
       filter(month_start >= input$dates[1], month_start < input$dates[2] ) %>%
+      # filter out by the user-input day type
       filter(day_type %in% input$day) %>%
+      # filter out by the user-input mode of transportation
+      filter(mode %in% input$modes) %>%
+      # create a new field, id, serve as what's displayed to the user
       mutate(id = paste(route, day_type, month_start, sep = "-")) %>%
+      # create a new field, total_monthly_riders, to serve as the value plotted against the y-axis
       mutate(total_monthly_riders = paste(round(avg_riders * day_count))) %>%
+      # grab the top "X" values, as input by the user
       slice_max(avg_riders, n = input$top) %>%
+      # select the actual data
       select(month_start, mode, total_monthly_riders, id, route, day_type)
     print("---dhat2"); return(result)
   })
   
+  # need to figure this out...
   dhat3 <- reactive({
     result = d %>%
       filter(month_start >= input$dates[1], month_start < input$dates[2] ) %>%
       filter(day_type %in% input$day) %>%
+      filter(mode %in% input$modes) %>%
       mutate(id = paste(route, day_type, month_start, sep = "-")) %>%
       mutate(total_monthly_riders = paste(round(avg_riders))) %>%
-      filter(mode %in% input$modes) %>%
       slice_max(avg_riders, n = input$top) %>%
       select(month_start, total_monthly_riders, id, mode, route, day_type)
     print("---dhat3"); return(result)
@@ -237,13 +241,15 @@ server <- function(input, output, session) {
         color = id, 
         fill = id
       )) +
+      xlab("Start of the Month") +
+      ylab("Average Number of Riders for the Month") +
       geom_line(alpha = 0.5) + 
       geom_point(alpha = 0.5) +
       guides(
         title = "Title",
         color = "none"
       ) +
-      ggtitle(paste(str_interp("Average Monthly Ridership for ${length(input$route)} Selected PRT Route${add_s(input$route)} Over Time"))) +
+      ggtitle(paste(str_interp("Average Monthly Ridership for ${length(input$route)} Selected PRT Route${add_s(length(input$route))} Over Time"))) +
       theme(plot.title = element_text(hjust = 0.5))
   })
   
@@ -252,19 +258,25 @@ server <- function(input, output, session) {
     
     dhat2() %>%
       ggplot(mapping = aes(
-        x = reorder(id, desc(total_monthly_riders)), 
+        # x = reorder(id, desc(total_monthly_riders)), 
+        x = id,
         y = total_monthly_riders, 
         fill = id,
         color = id
       )) +
-      geom_bar(alpha = 0.5, stat = "identity") +
+      xlab("Route Name and Day") +
+      ylab("Average Number of Riders for the Month") +
+      geom_bar(
+        alpha = 0.5, 
+        stat = "identity"
+      ) +
       # https://stackoverflow.com/questions/64848319/how-to-synchronise-the-legend-the-with-order-of-the-bars-in-ggplot2
       guides(
         title = "Title",
         color = "none", 
         guide_legend(reverse = FALSE)
       ) +
-      ggtitle(paste(str_interp("Top ${input$top} Most Popular Route${add_s(input$top)} Based on Monthly Average Ridership"))) +
+      ggtitle(paste(str_interp("Top ${input$top} All-Time Most Popular Route${add_s(input$top)} Based on Monthly Average Ridership"))) +
       theme(plot.title = element_text(hjust = 0.5))
   })
   
@@ -277,6 +289,8 @@ server <- function(input, output, session) {
         y = total_monthly_riders,
         fill = id
       )) +
+      xlab("Route Name and Day") +
+      ylab("Number of Riders in A Single Day") +
       geom_bar(alpha = 0.5, stat = "identity") +
       # https://stackoverflow.com/questions/64848319/how-to-synchronise-the-legend-the-with-order-of-the-bars-in-ggplot2
       guides(
@@ -284,16 +298,16 @@ server <- function(input, output, session) {
         color = "none", 
         guide_legend(reverse = FALSE)
       ) +
-      ggtitle(paste(str_interp("Top ${input$top} Most Popular ${input$mode} Route${add_s(input$top)} Based on Single-Day Ridership"))) +
+      ggtitle(paste(str_interp("Top ${input$top} All-Time Most Popular Route${add_s(input$top)} Based on Single-Day Ridership"))) +
       theme(plot.title = element_text(hjust = 0.5))
   })
   
-  
+  # outputs the data table corresponding to the third plot
   output$mytable = DT::renderDataTable({
     DT::datatable(data = dhat3())
   })
   
-  
+  # enables the user to download the datatable created above.
   output$downloadData <- downloadHandler(
     filename = function() {
       paste('prt-transit-data-', Sys.Date(), '.csv', sep='')
@@ -302,11 +316,6 @@ server <- function(input, output, session) {
       write.csv(dhat3(), con)
     }
   )
-  
-  
-  
-  # BAR CHART THAT SHOWS THE TOP X ROUTES IN TERMS OF AVERAGE MONTHLY RIDERSHIP
-  
   
 }
 
